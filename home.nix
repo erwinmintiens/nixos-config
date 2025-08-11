@@ -52,6 +52,7 @@
     kdePackages.dolphin
     protonmail-desktop
     flameshot
+    tldr
 
     # archives
     zip
@@ -103,6 +104,9 @@
     userName = "Erwin Mintiens";
     userEmail = "erwin.mintiens@protonmail.com";
   };
+  programs.git.extraConfig = {
+    init.defaultBranch = "main";
+  };
 
   # # starship - an customizable prompt for any shell
   # programs.starship = {
@@ -126,7 +130,7 @@
         family = "JetBrains Mono";
 	style = "Regular";
       };
-      font.size = 10;
+      font.size = 8;
     };
   };
 

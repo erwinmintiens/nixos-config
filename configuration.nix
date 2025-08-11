@@ -16,6 +16,7 @@
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.kernelModules = [ "amdgpu" ];
 
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
@@ -71,6 +72,22 @@
     theme = "powerlevel10k/powerlevel10k";
   };
   
+  # Start the driver at boot
+  systemd.services.fprintd = {
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig.Type = "simple";
+  };
+  
+  # Install the driver
+  services.fprintd.enable = true;
+  # If simply enabling fprintd is not enough, try enabling fprintd.tod...
+  services.fprintd.tod.enable = true;
+  # ...and use one of the next four drivers
+  services.fprintd.tod.driver = pkgs.libfprint-2-tod1-goodix; # Goodix driver module
+
+  services.logind.extraConfig = ''
+    HandlePowerKey=ignore
+  '';
 
   # Configure keymap in X11
   # services.xserver.xkb.layout = "us";
@@ -97,6 +114,13 @@
   };
 
   # programs.firefox.enable = true;
+    programs.nix-ld.enable = true;
+    programs.nix-ld.libraries = with pkgs; [
+      # Add any missing dynamic libraries for unpackaged programs
+      # here, NOT in environment.systemPackages
+      ruff
+      uv
+    ];
 
   # List packages installed in system profile.
   # You can use https://search.nixos.org/ to find more packages (and options).
@@ -108,8 +132,6 @@
     git
     btop
     bat
-    uv
-    ruff
     libnotify
     python3Packages.psutil
     libpulseaudio
@@ -118,6 +140,9 @@
     python3Packages.pulsectl
     home-manager
     dunst
+    ruff
+    uv
+    brightnessctl
   ];
 
   fonts.packages = with pkgs; [
